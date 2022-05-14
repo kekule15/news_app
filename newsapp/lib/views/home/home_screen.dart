@@ -28,37 +28,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   TextEditingController controller = TextEditingController();
 
-  // This function is called whenever the text field changes
-  void _runFilter(String enteredKeyword) {
-    enteredKeyword = controller.text;
-    final newsViewModel = ref.watch(newsDataRequestProvider);
-    List<Article> results = [];
-    if (enteredKeyword.isEmpty) {
-      // if the search field is empty or only contains white-space, we'll display all users
-      results = newsViewModel.newsData.data!.articles!;
-    } else {
-      results = newsViewModel.newsData.data!.articles!
-          .where((user) =>
-              user.title.toLowerCase().contains(enteredKeyword.toLowerCase()))
-          .toList();
-      // we use the toLowerCase() method to make it case-insensitive
-    }
-
-    // Refresh the UI
-    setState(() {
-      _foundUsers = results;
-    });
-  }
-
-  // This list holds the data for the list view
   List<Article> _foundUsers = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final viewModel = ref.watch(categoryViewModel);
     final newsViewModel = ref.watch(newsDataRequestProvider);
-    final countryViewModel = ref.watch(countryListViewModel);
     if (newsViewModel.newsData.data != null) {
       _foundUsers = newsViewModel.newsData.data!.articles!;
     }
@@ -73,6 +48,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (newsViewModel.newsData.data != null) {
       _foundUsers = newsViewModel.newsData.data!.articles!;
     }
+    // This function is called whenever the text field changes
+    void _runFilter(String enteredKeyword) {
+      final newsViewModel = ref.watch(newsDataRequestProvider);
+      final results = newsViewModel.newsData.data!.articles!.where((user) {
+        final sourceName = user.source!.name!.toLowerCase();
+        final input = enteredKeyword.toLowerCase();
+        return sourceName.contains(input);
+      }).toList();
+      setState(() {
+        _foundUsers = results;
+      });
+    }
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -103,9 +91,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: InkWell(
               onTap: () {
                 newsViewModel.getNewsData();
-                // setState(() {
-                //   viewModel.selectedIndex = 0;
-                // });
               },
               child: const Icon(
                 Icons.refresh,
@@ -255,21 +240,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           newsViewModel.newsData.loading == true ||
                   newsViewModel.newsData.data == null
-              ? ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 8,
-                  itemBuilder: (BuildContext context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: CustomLoader(
-                        customWidth: MediaQuery.of(context).size.width,
-                        customHeight: 220.0,
-                        borderRadius: 10.0,
-                      ),
-                    );
-                  })
+              ? CustomLoader()
               : newsViewModel.newsData.data!.articles!.isEmpty == true
                   ? const Center(
                       child: Text('No fetched data'),
@@ -285,7 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               padding: const EdgeInsets.only(top: 10),
                               child: InkWell(
                                   onTap: () {
-                                    Get.to(() => NewsDetailsScreen(),
+                                    Get.to(() => const NewsDetailsScreen(),
                                         arguments: newsViewModel
                                             .newsData.data!.articles![index]);
                                   },
