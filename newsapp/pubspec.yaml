@@ -37,7 +37,10 @@ dev_dependencies:
 
 
   flutter_lints: ^2.0.0
-
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/news_icon.png"
 
 flutter:
 
