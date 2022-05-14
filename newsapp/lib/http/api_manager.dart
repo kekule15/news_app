@@ -33,6 +33,7 @@ abstract class ApiManager {
     setHeader(formdata: formdata, token: token);
     params?.removeWhere((key, value) => value == null);
     final fullRoute = '$baseURL$route';
+    print('this is full $fullRoute $params');
     return makeRequest(dio.get(
       fullRoute,
       queryParameters: params,

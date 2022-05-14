@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:newsapp/models/news_response_model.dart';
 import 'package:newsapp/providers/news_data_provider.dart';
 import 'package:newsapp/styles/appColors.dart';
 import 'package:newsapp/utils/news_category_list.dart';
@@ -25,11 +26,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _scaffoldKey.currentState!.openDrawer();
   }
 
+  TextEditingController controller = TextEditingController();
+
+  // This function is called whenever the text field changes
+  void _runFilter(String enteredKeyword) {
+    enteredKeyword = controller.text;
+    final newsViewModel = ref.watch(newsDataRequestProvider);
+    List<Article> results = [];
+    if (enteredKeyword.isEmpty) {
+      // if the search field is empty or only contains white-space, we'll display all users
+      results = newsViewModel.newsData.data!.articles!;
+    } else {
+      results = newsViewModel.newsData.data!.articles!
+          .where((user) =>
+              user.title.toLowerCase().contains(enteredKeyword.toLowerCase()))
+          .toList();
+      // we use the toLowerCase() method to make it case-insensitive
+    }
+
+    // Refresh the UI
+    setState(() {
+      _foundUsers = results;
+    });
+  }
+
+  // This list holds the data for the list view
+  List<Article> _foundUsers = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final viewModel = ref.watch(categoryViewModel);
+    final newsViewModel = ref.watch(newsDataRequestProvider);
+    final countryViewModel = ref.watch(countryListViewModel);
+    if (newsViewModel.newsData.data != null) {
+      _foundUsers = newsViewModel.newsData.data!.articles!;
+    }
+  }
+
   int selected = 0;
   @override
   Widget build(BuildContext context) {
-    final _viewModel = ref.watch(categoryViewModel);
-    final _newsViewModel = ref.watch(newsDataRequestProvider);
+    final viewModel = ref.watch(categoryViewModel);
+    final newsViewModel = ref.watch(newsDataRequestProvider);
+    final countryViewModel = ref.watch(countryListViewModel);
+    if (newsViewModel.newsData.data != null) {
+      _foundUsers = newsViewModel.newsData.data!.articles!;
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -59,7 +102,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             padding: const EdgeInsets.only(right: 20),
             child: InkWell(
               onTap: () {
-                _newsViewModel.getNewsData();
+                newsViewModel.getNewsData();
+                // setState(() {
+                //   viewModel.selectedIndex = 0;
+                // });
               },
               child: const Icon(
                 Icons.refresh,
@@ -77,12 +123,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(
             height: 20,
           ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Text(
+              countryViewModel.selectedcountry,
+              style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.black),
+            ),
+          ),
           const SizedBox(
             height: 20,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
+              controller: controller,
+              onChanged: _runFilter,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),
                 fillColor: AppColors.unselectedTabIndicator,
@@ -121,41 +179,59 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: InkWell(
                       onTap: () {
                         setState(() {
-                          _viewModel.selectedIndex = index;
+                          viewModel.selectedIndex = index;
                         });
                         switch (index) {
                           case 0:
-                            _newsViewModel.getNewsData(category: 'general');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'general';
+                            newsViewModel.getNewsData();
                             break;
                           case 1:
-                            _newsViewModel.getNewsData(category: 'business');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'business';
+                            newsViewModel.getNewsData();
                             break;
                           case 2:
-                            _newsViewModel.getNewsData(
-                                category: 'entertainment');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'entertainment';
+                            newsViewModel.getNewsData();
                             break;
                           case 3:
-                            _newsViewModel.getNewsData(category: 'health');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'health';
+                            newsViewModel.getNewsData();
                             break;
                           case 4:
-                            _newsViewModel.getNewsData(category: 'science');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'science';
+                            newsViewModel.getNewsData();
                             break;
                           case 5:
-                            _newsViewModel.getNewsData(category: 'sports');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'sports';
+                            newsViewModel.getNewsData();
                             break;
                           case 6:
-                            _newsViewModel.getNewsData(category: 'technology');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'technology';
+                            newsViewModel.getNewsData();
                             break;
                           default:
-                            _newsViewModel.getNewsData(category: 'general');
+                            ref.watch(categoryViewModel).categoryCode =
+                                'general';
+                            newsViewModel.getNewsData();
                             break;
                         }
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: _viewModel.selectedIndex == index
+                          color: viewModel.selectedIndex == index
                               ? AppColors.primary
                               : AppColors.white,
+                          border: viewModel.selectedIndex != index
+                              ? Border.all(color: AppColors.gray)
+                              : null,
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Center(
@@ -165,7 +241,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             child: Text(
                               category[index],
                               style: TextStyle(
-                                color: _viewModel.selectedIndex == index
+                                color: viewModel.selectedIndex == index
                                     ? AppColors.white
                                     : AppColors.black,
                               ),
@@ -177,8 +253,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 })),
           ),
-          _newsViewModel.newsData.loading == true ||
-                  _newsViewModel.newsData.data == null
+          newsViewModel.newsData.loading == true ||
+                  newsViewModel.newsData.data == null
               ? ListView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
@@ -194,45 +270,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     );
                   })
-              : _newsViewModel.newsData.data!.articles!.isEmpty == true
+              : newsViewModel.newsData.data!.articles!.isEmpty == true
                   ? const Center(
                       child: Text('No fetched data'),
                     )
-                  : ListView.builder(
-                      itemCount: _newsViewModel.newsData.data!.articles!.length,
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: ((context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: InkWell(
-                              onTap: () {
-                                Get.to(() => NewsDetailsScreen(),
-                                    arguments: _newsViewModel
-                                        .newsData.data!.articles![index]);
-                              },
-                              child: NewsCardWidget(
-                                title: _newsViewModel
-                                    .newsData.data!.articles![index].title!,
-                                sourceName: _newsViewModel.newsData.data!
-                                    .articles![index].source!.name!,
-                                date: DateFormat('d MMMM y').format(
-                                    DateTime.tryParse(_newsViewModel.newsData
-                                        .data!.articles![index].publishedAt!
-                                        .toString())!),
-                                image: _newsViewModel.newsData.data!
-                                            .articles![index].urlToImage ==
-                                        ''
-                                    ? urlReplacer
-                                    : _newsViewModel.newsData.data!
-                                        .articles![index].urlToImage,
-                                description: '',
-                                url: _newsViewModel
-                                    .newsData.data!.articles![index].url!,
-                              )),
-                        );
-                      }))
+                  : _foundUsers.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: _foundUsers.length,
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: ((context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: InkWell(
+                                  onTap: () {
+                                    Get.to(() => NewsDetailsScreen(),
+                                        arguments: newsViewModel
+                                            .newsData.data!.articles![index]);
+                                  },
+                                  child: NewsCardWidget(
+                                    title: _foundUsers[index].title!,
+                                    sourceName:
+                                        _foundUsers[index].source!.name!,
+                                    date: DateFormat('d MMMM y').format(
+                                        DateTime.tryParse(_foundUsers[index]
+                                            .publishedAt!
+                                            .toString())!),
+                                    image: _foundUsers[index].urlToImage == ''
+                                        ? urlReplacer
+                                        : _foundUsers[index].urlToImage,
+                                    description: '',
+                                    url: _foundUsers[index].url!,
+                                  )),
+                            );
+                          }))
+                      : const Text(
+                          'No results found',
+                          style: TextStyle(fontSize: 24),
+                        ),
         ],
       ),
     );

@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:newsapp/providers/news_data_provider.dart';
 import 'package:newsapp/styles/appColors.dart';
+import 'package:newsapp/utils/country_category_list.dart';
 import 'package:newsapp/utils/providers.dart';
 import 'package:newsapp/utils/news_category_list.dart';
 
@@ -15,16 +17,12 @@ class MyDrawerPage extends ConsumerStatefulWidget {
 }
 
 class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
- 
-  List<String> countryList = [
-    'Nigeria',
-    'USA',
-    'Help',
-  ];
   GetStorage box = GetStorage();
   @override
   Widget build(BuildContext context) {
-    final _viewModel = ref.watch(categoryViewModel);
+    final viewModel = ref.watch(categoryViewModel);
+    final newsViewModel = ref.watch(newsDataRequestProvider);
+    final countryViewModel = ref.watch(countryListViewModel);
     return SafeArea(
       child: Drawer(
         elevation: 10,
@@ -76,8 +74,8 @@ class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
                 padding: const EdgeInsets.only(top: 70),
                 child: ListView(
                   children: [
-                 const   Padding(
-                      padding:  EdgeInsets.symmetric(horizontal: 20),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
                         'Categories',
                         style: TextStyle(color: AppColors.white, fontSize: 15),
@@ -96,24 +94,74 @@ class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
                               padding: const EdgeInsets.only(bottom: 20),
                               child: InkWell(
                                 onTap: () {
- setState(() {
-                          _viewModel.selectedIndex = index;
-                        });
+                                  setState(() {
+                                    viewModel.selectedIndex = index;
+                                  });
+                                  switch (index) {
+                                    case 0:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'general';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                    case 1:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'business';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                    case 2:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'entertainment';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                    case 3:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'health';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                    case 4:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'science';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                    case 5:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'sports';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                    case 6:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'technology';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                    default:
+                                      ref
+                                          .watch(categoryViewModel)
+                                          .categoryCode = 'general';
+                                      newsViewModel.getNewsData();
+                                      break;
+                                  }
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: _viewModel.selectedIndex == index
+                                    color: viewModel.selectedIndex == index
                                         ? AppColors.primary
                                         : AppColors.black,
                                     borderRadius: BorderRadius.circular(5),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 2),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 5, 130, 5),
                                     child: Text(
                                       category[index],
                                       style: TextStyle(
-                                        color: _viewModel.selectedIndex == index
+                                        color: viewModel.selectedIndex == index
                                             ? AppColors.white
                                             : AppColors.white,
                                       ),
@@ -129,6 +177,114 @@ class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
                     ),
                     const SizedBox(
                       height: 20,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        'Available Countries',
+                        style: TextStyle(color: AppColors.white, fontSize: 15),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(
+                            countryList.length,
+                            (index) => Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    countryViewModel.selectedIndex = index;
+                                  });
+                                  switch (index) {
+                                    case 0:
+                                      ref
+                                          .watch(countryListViewModel)
+                                          .selectedcountryCode = 'au';
+                                      newsViewModel.getNewsData();
+                                      countryViewModel.selectedcountry =
+                                          'Australia';
+                                      break;
+                                    case 1:
+                                      ref
+                                          .watch(countryListViewModel)
+                                          .selectedcountryCode = 'ng';
+                                      newsViewModel.getNewsData();
+                                      countryViewModel.selectedcountry =
+                                          'Nigeria';
+                                      break;
+                                    case 2:
+                                      ref
+                                          .watch(countryListViewModel)
+                                          .selectedcountryCode = 'sa';
+                                      newsViewModel.getNewsData();
+                                      countryViewModel.selectedcountry =
+                                          'South Africa';
+                                      break;
+                                    case 3:
+                                      ref
+                                          .watch(countryListViewModel)
+                                          .selectedcountryCode = 'ch';
+                                      newsViewModel.getNewsData();
+                                      countryViewModel.selectedcountry =
+                                          'Switzerland';
+                                      break;
+                                    case 4:
+                                      ref
+                                          .watch(countryListViewModel)
+                                          .selectedcountryCode = 'gb';
+                                      newsViewModel.getNewsData();
+                                      countryViewModel.selectedcountry =
+                                          'United Kingdom';
+                                      break;
+                                    case 5:
+                                      ref
+                                          .watch(countryListViewModel)
+                                          .selectedcountryCode = 'us';
+                                      newsViewModel.getNewsData();
+                                      countryViewModel.selectedcountry = 'USA';
+                                      break;
+
+                                    default:
+                                      ref
+                                          .watch(countryListViewModel)
+                                          .selectedcountryCode = 'ng';
+                                      newsViewModel.getNewsData();
+                                      countryViewModel.selectedcountry =
+                                          'Nigeria';
+                                      break;
+                                  }
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        countryViewModel.selectedIndex == index
+                                            ? AppColors.primary
+                                            : AppColors.black,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 5, 130, 5),
+                                    child: Text(
+                                      countryList[index],
+                                      style: TextStyle(
+                                        color: countryViewModel.selectedIndex ==
+                                                index
+                                            ? AppColors.white
+                                            : AppColors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )),
                     ),
                   ],
                 ),

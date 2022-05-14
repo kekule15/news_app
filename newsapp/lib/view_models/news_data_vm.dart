@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:newsapp/models/future_manager.dart';
 import 'package:newsapp/models/news_response_model.dart';
 import 'package:newsapp/providers/news_data_provider.dart';
+import 'package:newsapp/utils/providers.dart';
 import 'package:newsapp/view_models/base_vm.dart';
 
 class NewsDataViewModel extends BaseViewModel {
@@ -19,14 +20,14 @@ class NewsDataViewModel extends BaseViewModel {
   }
 
   getNewsData({
-    dynamic country = 'ng',
-    dynamic category = 'general',
     dynamic language = 'en',
   }) async {
+    final category = reader(categoryViewModel).categoryCode;
+     final countryCode = reader(countryListViewModel).selectedcountryCode;
     newsData.load();
     notifyListeners();
     final res = await reader(newsDataServiceProvider)
-        .getNewsData(country: country, category: category, language: language);
+        .getNewsData(country: countryCode, category: category, language: language);
     if (res.articles!.isNotEmpty == true) {
       newsData.onSuccess(res);
 
