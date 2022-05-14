@@ -4,6 +4,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:newsapp/styles/appColors.dart';
+import 'package:newsapp/utils/providers.dart';
+import 'package:newsapp/utils/news_category_list.dart';
 
 class MyDrawerPage extends ConsumerStatefulWidget {
   const MyDrawerPage({Key? key}) : super(key: key);
@@ -13,24 +15,16 @@ class MyDrawerPage extends ConsumerStatefulWidget {
 }
 
 class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
-  List<String> movieTypes = [
-    'TV Shows',
-    'Action',
-    'Romance',
-    'Thrillers',
-    'Sci-Fi & Fantancy',
-    'Dramas',
-    'Comedies',
-    'Family',
-  ];
-  List<String> subs = [
-    'Settings',
-    'Account',
+ 
+  List<String> countryList = [
+    'Nigeria',
+    'USA',
     'Help',
   ];
   GetStorage box = GetStorage();
   @override
   Widget build(BuildContext context) {
+    final _viewModel = ref.watch(categoryViewModel);
     return SafeArea(
       child: Drawer(
         elevation: 10,
@@ -44,7 +38,6 @@ class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
           child: Stack(
             children: [
               SizedBox(
-                height: 150,
                 child: Column(
                   children: [
                     const SizedBox(
@@ -53,15 +46,15 @@ class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Clafiya',
+                          const Text(
+                            'Clafiya News',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppColors.white),
-                          ),
-                          const SizedBox(
-                            width: 100,
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.white),
                           ),
                           InkWell(
                             onTap: () {
@@ -73,43 +66,59 @@ class _MyDrawerPageState extends ConsumerState<MyDrawerPage> {
                               color: AppColors.white,
                             ),
                           ),
-                          // InkWell(
-                          //   onTap: () {
-                          //     Get.to(() => const SettingsPage());
-                          //   },
-                          //   child: Icon(
-                          //     Icons.settings,
-                          //     size: 25.w,
-                          //     color: AppColors.white,
-                          //   ),
-                          // ),
                         ],
                       ),
-                    ),
-                    const SizedBox(
-                      height: 20,
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 150),
+                padding: const EdgeInsets.only(top: 70),
                 child: ListView(
                   children: [
+                 const   Padding(
+                      padding:  EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        'Categories',
+                        style: TextStyle(color: AppColors.white, fontSize: 15),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: List.generate(
-                            movieTypes.length,
+                            category.length,
                             (index) => Padding(
                               padding: const EdgeInsets.only(bottom: 20),
                               child: InkWell(
-                                onTap: () {},
-                                child: Text(
-                                  movieTypes[index],
-                                  style: TextStyle(
-                                      color: AppColors.white, fontSize: 13.sp),
+                                onTap: () {
+ setState(() {
+                          _viewModel.selectedIndex = index;
+                        });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: _viewModel.selectedIndex == index
+                                        ? AppColors.primary
+                                        : AppColors.black,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 2),
+                                    child: Text(
+                                      category[index],
+                                      style: TextStyle(
+                                        color: _viewModel.selectedIndex == index
+                                            ? AppColors.white
+                                            : AppColors.white,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

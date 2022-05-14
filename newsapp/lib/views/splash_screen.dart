@@ -42,6 +42,7 @@ class _SplashViewState extends ConsumerState<SplashView>
     super.initState();
   }
 
+
   @override
   void dispose() {
     _controller.dispose();

@@ -3,7 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:newsapp/styles/appColors.dart';
 
 class NewsCardWidget extends ConsumerWidget {
-  const NewsCardWidget({Key? key}) : super(key: key);
+  final String title;
+  final String description;
+  final String date;
+  final String image;
+  final String sourceName;
+
+  NewsCardWidget(
+      {required this.title,
+      required this.description,
+      required this.date,
+      required this.image,
+      required this.sourceName});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,21 +26,23 @@ class NewsCardWidget extends ConsumerWidget {
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: AppColors.gray.withOpacity(0.4)),
+              color: AppColors.gray.withOpacity(0.3),
+              image: DecorationImage(
+                  image: NetworkImage(image), fit: BoxFit.cover)),
         ),
       ),
       const SizedBox(
         height: 5,
       ),
-      const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: ListTile(
-          contentPadding: EdgeInsets.all(0),
+          contentPadding: const EdgeInsets.all(0),
           horizontalTitleGap: 0,
           title: Text(
-            'Google announces Flutter 3, now with macOS and Linus desktop suport',
-            style:
-                TextStyle(color: AppColors.black, fontWeight: FontWeight.w500),
+            title,
+            style: const TextStyle(
+                color: AppColors.black, fontWeight: FontWeight.w500),
           ),
         ),
       ),
@@ -42,14 +55,14 @@ class NewsCardWidget extends ConsumerWidget {
           horizontalTitleGap: 5,
           minLeadingWidth: 0,
           minVerticalPadding: 0,
-          contentPadding: EdgeInsets.all(0),
-          title: const Text(
-            'Level up Coding',
-            style: TextStyle(fontSize: 15),
+          contentPadding: const EdgeInsets.all(0),
+          title: Text(
+            sourceName,
+            style: const TextStyle(fontSize: 15),
           ),
-          subtitle: const Text(
-            '2022:04:23',
-            style: TextStyle(
+          subtitle: Text(
+            date,
+            style: const TextStyle(
               fontSize: 15,
             ),
           ),
@@ -72,7 +85,7 @@ class NewsCardWidget extends ConsumerWidget {
           ),
         ),
       ),
-    const  Divider(
+      const Divider(
         color: AppColors.gray,
       )
     ]);

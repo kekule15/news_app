@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:newsapp/providers/news_data_provider.dart';
 import 'package:newsapp/styles/appColors.dart';
+import 'package:newsapp/utils/news_category_list.dart';
+import 'package:newsapp/utils/providers.dart';
 import 'package:newsapp/views/home/drawer.dart';
+import 'package:newsapp/views/home/news_details.dart';
 import 'package:newsapp/widgets/news_card.dart';
+import 'package:get/get.dart';
+import 'package:newsapp/widgets/special_offers_preloader.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,32 +24,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _scaffoldKey.currentState!.openDrawer();
   }
 
-  List<String> category = [
-    'General',
-    'Business',
-    'Entertainment',
-    'General',
-    'Health',
-    'Science',
-    'Sports',
-    'Technology'
-  ];
   int selected = 0;
   @override
   Widget build(BuildContext context) {
+    final _viewModel = ref.watch(categoryViewModel);
+    final _newsViewModel = ref.watch(newsDataRequestProvider);
     return Scaffold(
       key: _scaffoldKey,
-      drawer: MyDrawerPage(),
+      drawer: const MyDrawerPage(),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
           const SizedBox(
             height: 20,
           ),
-          const Text(
-            'Clafiya News',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    _scaffoldKey.currentState!.openDrawer();
+                  },
+                  child: const Icon(
+                    Icons.menu,
+                    color: AppColors.black,
+                    size: 25,
+                  ),
+                ),
+                const SizedBox(
+                  width: 30,
+                ),
+                const Text(
+                  'Clafiya News',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
           const SizedBox(
             height: 20,
@@ -51,7 +70,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(10),
+                contentPadding: const EdgeInsets.all(10),
                 fillColor: AppColors.unselectedTabIndicator,
                 focusColor: AppColors.primary,
                 filled: true,
@@ -77,10 +96,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           SizedBox(
             height: 50,
             child: ListView.builder(
-                padding: EdgeInsets.only(left: 20),
+                padding: const EdgeInsets.only(left: 20),
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 itemCount: category.length,
                 itemBuilder: ((context, index) {
                   return Padding(
@@ -88,12 +107,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: InkWell(
                       onTap: () {
                         setState(() {
-                          selected = index;
+                          _viewModel.selectedIndex = index;
                         });
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: selected == index
+                          color: _viewModel.selectedIndex == index
                               ? AppColors.primary
                               : AppColors.white,
                           borderRadius: BorderRadius.circular(5),
@@ -105,7 +124,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             child: Text(
                               category[index],
                               style: TextStyle(
-                                color: selected == index
+                                color: _viewModel.selectedIndex == index
                                     ? AppColors.white
                                     : AppColors.black,
                               ),
@@ -117,17 +136,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 })),
           ),
-          ListView.builder(
-              itemCount: 10,
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: ((context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: NewsCardWidget(),
-                );
-              }))
+          _newsViewModel.newsData.loading == true ||
+                  _newsViewModel.newsData.data == null
+              ? ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 8,
+                  itemBuilder: (BuildContext context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: CustomLoader(
+                        customWidth: MediaQuery.of(context).size.width,
+                        customHeight: 220.0,
+                        borderRadius: 10.0,
+                      ),
+                    );
+                  })
+              : _newsViewModel.newsData.data!.articles!.isEmpty == true
+                  ? const Center(
+                      child: Text('No fetched data'),
+                    )
+                  : ListView.builder(
+                      itemCount: _newsViewModel.newsData.data!.articles!.length,
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: ((context, index) {
+                        print(
+                            'hello my list ${_newsViewModel.newsData.data!.articles!.length}');
+
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: InkWell(
+                              onTap: () {
+                                Get.to(() => const NewsDetailsScreen());
+                              },
+                              child: NewsCardWidget(
+                                title: _newsViewModel
+                                    .newsData.data!.articles![index].title!,
+                                sourceName: _newsViewModel.newsData.data!
+                                    .articles![index].source!.name!,
+                                date: DateFormat('d MMMM y').format(
+                                    DateTime.tryParse(_newsViewModel.newsData
+                                        .data!.articles![index].publishedAt!
+                                        .toString())!),
+                                image: _newsViewModel.newsData.data!
+                                    .articles![index].urlToImage!,
+                                description: '',
+                              )),
+                        );
+                      }))
         ],
       ),
     );

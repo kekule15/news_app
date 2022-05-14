@@ -10,7 +10,7 @@ import 'package:newsapp/models/formatted_response.dart';
 abstract class ApiManager {
   late Dio dio;
 
-  final baseURL = 'http://139.162.208.200:8800/api';
+  final baseURL = 'https://newsapi.org/v2';
   final APIKey = '7d1b44c16bb648aba69541617674244b';
   final Reader read;
 
