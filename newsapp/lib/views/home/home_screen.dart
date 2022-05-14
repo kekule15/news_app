@@ -5,6 +5,7 @@ import 'package:newsapp/providers/news_data_provider.dart';
 import 'package:newsapp/styles/appColors.dart';
 import 'package:newsapp/utils/news_category_list.dart';
 import 'package:newsapp/utils/providers.dart';
+import 'package:newsapp/utils/strings.dart';
 import 'package:newsapp/views/home/drawer.dart';
 import 'package:newsapp/views/home/news_details.dart';
 import 'package:newsapp/widgets/news_card.dart';
@@ -31,37 +32,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final _newsViewModel = ref.watch(newsDataRequestProvider);
     return Scaffold(
       key: _scaffoldKey,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: AppColors.white,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'Clafiya News',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.black),
+        ),
+        leading: InkWell(
+          onTap: () {
+            _scaffoldKey.currentState!.openDrawer();
+          },
+          child: const Icon(
+            Icons.menu,
+            color: AppColors.black,
+            size: 25,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: InkWell(
+              onTap: () {
+                _newsViewModel.getNewsData();
+              },
+              child: const Icon(
+                Icons.refresh,
+                color: AppColors.black,
+                size: 25,
+              ),
+            ),
+          ),
+        ],
+      ),
       drawer: const MyDrawerPage(),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
           const SizedBox(
             height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    _scaffoldKey.currentState!.openDrawer();
-                  },
-                  child: const Icon(
-                    Icons.menu,
-                    color: AppColors.black,
-                    size: 25,
-                  ),
-                ),
-                const SizedBox(
-                  width: 30,
-                ),
-                const Text(
-                  'Clafiya News',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
           ),
           const SizedBox(
             height: 20,
@@ -109,6 +123,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         setState(() {
                           _viewModel.selectedIndex = index;
                         });
+                        switch (index) {
+                          case 0:
+                            _newsViewModel.getNewsData(category: 'general');
+                            break;
+                          case 1:
+                            _newsViewModel.getNewsData(category: 'business');
+                            break;
+                          case 2:
+                            _newsViewModel.getNewsData(
+                                category: 'entertainment');
+                            break;
+                          case 3:
+                            _newsViewModel.getNewsData(category: 'health');
+                            break;
+                          case 4:
+                            _newsViewModel.getNewsData(category: 'science');
+                            break;
+                          case 5:
+                            _newsViewModel.getNewsData(category: 'sports');
+                            break;
+                          case 6:
+                            _newsViewModel.getNewsData(category: 'technology');
+                            break;
+                          default:
+                            _newsViewModel.getNewsData(category: 'general');
+                            break;
+                        }
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -163,14 +204,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: ((context, index) {
-                        print(
-                            'hello my list ${_newsViewModel.newsData.data!.articles!.length}');
-
                         return Padding(
                           padding: const EdgeInsets.only(top: 10),
                           child: InkWell(
                               onTap: () {
-                                Get.to(() => const NewsDetailsScreen());
+                                Get.to(() => NewsDetailsScreen(),
+                                    arguments: _newsViewModel
+                                        .newsData.data!.articles![index]);
                               },
                               child: NewsCardWidget(
                                 title: _newsViewModel
@@ -182,8 +222,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         .data!.articles![index].publishedAt!
                                         .toString())!),
                                 image: _newsViewModel.newsData.data!
-                                    .articles![index].urlToImage!,
+                                            .articles![index].urlToImage ==
+                                        ''
+                                    ? urlReplacer
+                                    : _newsViewModel.newsData.data!
+                                        .articles![index].urlToImage,
                                 description: '',
+                                url: _newsViewModel
+                                    .newsData.data!.articles![index].url!,
                               )),
                         );
                       }))

@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:newsapp/styles/appColors.dart';
+import 'package:newsapp/utils/providers.dart';
+import 'package:share_plus/share_plus.dart';
 
-class NewsCardWidget extends ConsumerWidget {
+class NewsCardWidget extends ConsumerStatefulWidget {
   final String title;
   final String description;
   final String date;
   final String image;
   final String sourceName;
+  final String url;
 
   NewsCardWidget(
       {required this.title,
       required this.description,
       required this.date,
       required this.image,
-      required this.sourceName});
+      required this.sourceName,
+      required this.url
+      });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _NewsCardWidgetState();
+}
+
+class _NewsCardWidgetState extends ConsumerState<NewsCardWidget> {
+  bool selected = false;
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    bool isFavourite = ref.watch(mychecker);
     return Column(children: [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -28,7 +43,7 @@ class NewsCardWidget extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
               color: AppColors.gray.withOpacity(0.3),
               image: DecorationImage(
-                  image: NetworkImage(image), fit: BoxFit.cover)),
+                  image: NetworkImage(widget.image), fit: BoxFit.cover)),
         ),
       ),
       const SizedBox(
@@ -40,7 +55,7 @@ class NewsCardWidget extends ConsumerWidget {
           contentPadding: const EdgeInsets.all(0),
           horizontalTitleGap: 0,
           title: Text(
-            title,
+            widget.title,
             style: const TextStyle(
                 color: AppColors.black, fontWeight: FontWeight.w500),
           ),
@@ -57,11 +72,11 @@ class NewsCardWidget extends ConsumerWidget {
           minVerticalPadding: 0,
           contentPadding: const EdgeInsets.all(0),
           title: Text(
-            sourceName,
+            widget.sourceName,
             style: const TextStyle(fontSize: 15),
           ),
           subtitle: Text(
-            date,
+            widget.date,
             style: const TextStyle(
               fontSize: 15,
             ),
@@ -70,15 +85,44 @@ class NewsCardWidget extends ConsumerWidget {
             width: 100,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
-                Icon(
-                  Icons.favorite_border,
+              children: [
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      selected = !selected;
+                    });
+                    // final isObs = ref.watch(mychecker.state);
+                    // isObs.state = !isObs.state;
+                  },
+                  child: Stack(
+                    children: [
+                      const Icon(
+                        Icons.favorite_border,
+                      ),
+                      Visibility(
+                        visible: selected,
+                        child: const Icon(
+                          Icons.favorite,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 15,
                 ),
-                Icon(
-                  Icons.share,
+                InkWell(
+                  onTap: () {
+                    Share.share(widget.url, subject: 'Clafiya News');
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: AppColors.gray.withOpacity(0.3),
+                    child: const Icon(
+                      Icons.share,
+                      color: AppColors.black,
+                    ),
+                  ),
                 )
               ],
             ),

@@ -15,9 +15,7 @@ class NewsDataService extends ApiManager {
 
   // get news data with Nigeria (ng) as default country, english (en) as default language and general as the default category..
   Future<NewsResponseModel> getNewsData(
-      {String country = 'ng',
-      String category = 'general',
-      String language = 'en'}) async {
+      {dynamic country, dynamic category, dynamic language}) async {
     final params = {'country': country, 'category': category, 'apiKey': APIKey};
     final response = await getHttp(getNewsDataUrl, params: params);
     if (response.responseCodeError == null) {

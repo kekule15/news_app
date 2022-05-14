@@ -18,10 +18,15 @@ class NewsDataViewModel extends BaseViewModel {
     getNewsData();
   }
 
-  getNewsData() async {
+  getNewsData({
+    dynamic country = 'ng',
+    dynamic category = 'general',
+    dynamic language = 'en',
+  }) async {
     newsData.load();
     notifyListeners();
-    final res = await reader(newsDataServiceProvider).getNewsData();
+    final res = await reader(newsDataServiceProvider)
+        .getNewsData(country: country, category: category, language: language);
     if (res.articles!.isNotEmpty == true) {
       newsData.onSuccess(res);
 
