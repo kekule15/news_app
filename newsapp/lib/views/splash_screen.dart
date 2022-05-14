@@ -1,4 +1,3 @@
-
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -43,7 +42,6 @@ class _SplashViewState extends ConsumerState<SplashView>
     super.initState();
   }
 
-
   @override
   void dispose() {
     _controller.dispose();
@@ -65,9 +63,20 @@ class _SplashViewState extends ConsumerState<SplashView>
                       : (_time!.value >= 14 && _time!.value < 19.8)
                           ? 1.0
                           : 0.0,
-                  duration: const Duration(milliseconds: 500),
-                  child: ImageWidget(
-                      asset: (_time!.value <= 14) ? newsIcon : newsIcon),
+                  duration: const Duration(milliseconds: 600),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ImageWidget(
+                          asset: (_time!.value <= 14) ? newsIcon : newsIcon),
+                    const  Text(
+                        'Clafiya News',
+                        style: TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }));

@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +11,7 @@ abstract class ApiManager {
   late Dio dio;
 
   final baseURL = 'http://139.162.208.200:8800/api';
+  final APIKey = '7d1b44c16bb648aba69541617674244b';
   final Reader read;
 
   ApiManager(this.read) {
