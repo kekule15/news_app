@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:newsapp/providers/providers.dart';
 import 'package:newsapp/styles/appColors.dart';
-import 'package:newsapp/utils/providers.dart';
 import 'package:share_plus/share_plus.dart';
 
 class NewsCardWidget extends ConsumerStatefulWidget {

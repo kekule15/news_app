@@ -4,9 +4,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:newsapp/providers/news_data_provider.dart';
+import 'package:newsapp/providers/providers.dart';
 import 'package:newsapp/styles/appColors.dart';
 import 'package:newsapp/utils/country_category_list.dart';
-import 'package:newsapp/utils/providers.dart';
 import 'package:newsapp/utils/news_category_list.dart';
 
 class MyDrawerPage extends ConsumerStatefulWidget {

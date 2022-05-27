@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:newsapp/models/future_manager.dart';
 import 'package:newsapp/models/news_response_model.dart';
 import 'package:newsapp/providers/news_data_provider.dart';
-import 'package:newsapp/utils/providers.dart';
+import 'package:newsapp/providers/providers.dart';
 import 'package:newsapp/view_models/base_vm.dart';
 
 class NewsDataViewModel extends BaseViewModel {
